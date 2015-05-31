@@ -3845,6 +3845,18 @@ public final class Settings {
          */
         public static final String RECENT_PANEL_GRAVITY = "recent_panel_gravity";
 
+		/**
+         * Heads Up background color
+         * @hide
+         */
+        public static final String HEADS_UP_BG_COLOR = "heads_up_bg_color";
+
+        /**
+         * Heads Up text color
+         * @hide
+         */
+        public static final String HEADS_UP_TEXT_COLOR = "heads_up_text_color";
+
         /**
          * Size of recent panel view in percent (default = 100).
          * @hide

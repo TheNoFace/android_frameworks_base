@@ -230,6 +230,8 @@ public abstract class BaseStatusBar extends SystemUI implements
     protected boolean mUseHeadsUp = false;
     protected boolean mHeadsUpTicker = false;
     protected boolean mDisableNotificationAlerts = false;
+    private   int     mHeadsUpBackground = 0x00ffffff;
+    private int mHeadsUpTextColor;
     protected boolean mHeadsUpUserEnabled = false;
 
     protected DevicePolicyManager mDevicePolicyManager;
@@ -1579,14 +1581,14 @@ public abstract class BaseStatusBar extends SystemUI implements
     }
 
     private boolean inflateViews(NotificationData.Entry entry, ViewGroup parent) {
-            return inflateViews(entry, parent, false);
+            return inflateViews(entry, parent, false, -1);
     }
 
     protected boolean inflateViewsForHeadsUp(NotificationData.Entry entry, ViewGroup parent) {
-            return inflateViews(entry, parent, true);
+            return inflateViews(entry, parent, true, -1);
     }
 
-    private boolean inflateViews(NotificationData.Entry entry, ViewGroup parent, boolean isHeadsUp) {
+    private boolean inflateViews(NotificationData.Entry entry, ViewGroup parent, boolean isHeadsUp, int customTextColo) {
         PackageManager pmUser = getPackageManagerForUser(
                 entry.notification.getUser().getIdentifier());
 
@@ -1594,6 +1596,7 @@ public abstract class BaseStatusBar extends SystemUI implements
         final StatusBarNotification sbn = entry.notification;
         RemoteViews contentView = sbn.getNotification().contentView;
         RemoteViews bigContentView = sbn.getNotification().bigContentView;
+        mHeadsUpTextColor = customTextColor;
 
         if (isHeadsUp) {
             maxHeight =
@@ -1603,6 +1606,13 @@ public abstract class BaseStatusBar extends SystemUI implements
 
         if (contentView == null) {
             return false;
+        }
+        // apply custom text color to heads up notifications ONLY
+        if (mHeadsUpTextColor != 0) { // if it's 0, then text color is default
+            if (mHeadsUpTextColor != -1) { //if it's -1, then it's a regular notification
+                setHeadsUpTextColor(contentView, mHeadsUpTextColor);
+                setHeadsUpTextColor(bigContentView, mHeadsUpTextColor);
+            }
         }
 
         if (DEBUG) {
@@ -1817,6 +1827,18 @@ public abstract class BaseStatusBar extends SystemUI implements
         row.setUserLocked(userLocked);
         row.setStatusBarNotification(entry.notification);
         return true;
+    }
+
+    private void setHeadsUpTextColor(RemoteViews view, int color) {
+        if (view != null) {
+            view.setInt(com.android.internal.R.id.title, "setTextColor", color);
+            view.setInt(com.android.internal.R.id.text, "setTextColor", color);
+            view.setInt(com.android.internal.R.id.big_text, "setTextColor", color);
+            view.setInt(com.android.internal.R.id.time, "setTextColor", color);
+//            view.setInt(com.android.internal.R.id.action0, "setTextColor", color);
+            view.setInt(com.android.internal.R.id.text2, "setTextColor", color);
+            view.setInt(com.android.internal.R.id.info, "setTextColor", color);
+        }
     }
 
     public NotificationClicker makeClicker(PendingIntent intent, String notificationKey,
@@ -2305,7 +2327,10 @@ public abstract class BaseStatusBar extends SystemUI implements
                     Entry newEntry = new Entry(notification, null);
                     ViewGroup holder = mHeadsUpNotificationView.getHolder();
                     if (inflateViewsForHeadsUp(newEntry, holder)) {
-                        mHeadsUpNotificationView.showNotification(newEntry);
+                        int mHeadsUpBackground = Settings.System.getIntForUser(
+                            mContext.getContentResolver(), Settings.System.HEADS_UP_BG_COLOR,
+                            0x00ffffff, UserHandle.USER_CURRENT);
+     			mHeadsUpNotificationView.showNotification(newEntry, mHeadsUpBackground);
                         if (alertAgain) {
                             resetHeadsUpDecayTimer();
                         }
@@ -2335,6 +2360,7 @@ public abstract class BaseStatusBar extends SystemUI implements
                             n.tickerText);
                     oldEntry.icon.setNotification(n);
                     oldEntry.icon.set(ic);
+		    inflateViews(oldEntry, mStackScroller, wasHeadsUp, -1);
                     inflateViews(oldEntry, mStackScroller, wasHeadsUp);
                     mNotificationData.updateRanking(ranking);
                     updateNotifications();
@@ -2913,3 +2939,4 @@ public abstract class BaseStatusBar extends SystemUI implements
         return lp;
     }
 }
+
