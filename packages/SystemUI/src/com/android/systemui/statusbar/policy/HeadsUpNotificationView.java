@@ -167,7 +167,7 @@ public class HeadsUpNotificationView extends FrameLayout implements SwipeHelper.
         return mContentHolder;
     }
 
-   public boolean showNotification(NotificationData.Entry isheadsUp, int background) {
+   public boolean showNotification(NotificationData.Entry isHeadsUp, int background) {
         if (mHeadsUp != null && isHeadsUp != null && !mHeadsUp.key.equals(isHeadsUp.key)) {
             // bump any previous heads up back to the shade
             release();
@@ -381,7 +381,6 @@ public class HeadsUpNotificationView extends FrameLayout implements SwipeHelper.
             if (mHeadsUp != null) {
                 // whoops, we're on already!
 		showNotification(mHeadsUp, mBackground);
-                showNotification(mHeadsUp);
             }
 
             getViewTreeObserver().addOnComputeInternalInsetsListener(this);

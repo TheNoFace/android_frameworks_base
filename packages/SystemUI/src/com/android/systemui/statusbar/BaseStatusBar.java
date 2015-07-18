@@ -1588,7 +1588,7 @@ public abstract class BaseStatusBar extends SystemUI implements
             return inflateViews(entry, parent, true, -1);
     }
 
-    private boolean inflateViews(NotificationData.Entry entry, ViewGroup parent, boolean isHeadsUp, int customTextColo) {
+    public boolean inflateViews(NotificationData.Entry entry, ViewGroup parent, boolean isHeadsUp, int customTextColor) {
         PackageManager pmUser = getPackageManagerForUser(
                 entry.notification.getUser().getIdentifier());
 
@@ -2361,7 +2361,6 @@ public abstract class BaseStatusBar extends SystemUI implements
                     oldEntry.icon.setNotification(n);
                     oldEntry.icon.set(ic);
 		    inflateViews(oldEntry, mStackScroller, wasHeadsUp, -1);
-                    inflateViews(oldEntry, mStackScroller, wasHeadsUp);
                     mNotificationData.updateRanking(ranking);
                     updateNotifications();
                 }
